@@ -19,6 +19,27 @@ Support for bridge to other languages like (JAVA, Python).
 
 # Syntax and semantics
 
+Symbols are identifiers `[a-zA-Z_][a-zA-Z_0-9]*` arithmetic operators, parentheses, and other syntactic stuff.
+
+A file is a script with statements and function definition at the outermost level.
+
+Whitespace not significant except as separator between symbols. Newline and semicolon are not used to separate statements. I.e., the following is ok:
+
+```javascript
+x = 1 x = x + 1
+```
+
+and means same thing as
+
+```javascript
+x = 1
+x = x + 1
+```
+
+ANTLR parsers can handle this as it's not ambiguous.
+
+Comments are `//` and `/*...*/` like Java/C++.
+
 ## Expressions
 
 The basics; ints, floats, strings
@@ -27,13 +48,13 @@ The basics; ints, floats, strings
 var x = 1	       // type inference of int
 var y = x*2.34   // type inference of float
 print(abs(y))
-var z = "hi"
+var z = "hi"     // strings are immutable
 ```
 
-Vectors of floats
+Vectors of floats, indexed from 1 not 0.
 
 ```javascript
-var X = [1, 2.3, 99.0024]
+var X = [1, 2.3, 99.0024] // vectors are always floats
 print(X*3)       // overload operators for vec-scalar, vec-vec
 print(X+X)
 print(X . X)     // dot product; period with spaces around it
@@ -41,14 +62,72 @@ sin(3.14)
 sin(X)           // like R and numpy, apply sin() to all X
 ```
 
+### Operators
+
+`+`, `-`, `*`, `/`, `^`, `.`, `:` (slice operator for vectors)
+
 ## Statements
+
+```javascript
+if (<expr>) <stat>+
+if (<expr>) <stat>+ else <stat>+
+```
+
+```javascript
+while ( <expr> ) <stat>+
+```
+
+```javascript
+var id = <expr>
+```
+
+```javascript
+return <expr>
+```
+
+```javascript
+x = <expr>
+X[<expr>] = <expr>
+```
 
 ## Functions
 
-Semantics are pass by value but implemented as pass-by-reference?
-
-Copy-on-write semantics private to function?
+### Syntax
 
 ```javascript
 func dub(x : int) : int { return x*2 }
 ```
+
+### Side-effect free
+
+* Semantics are pass-by-value to/from functions. E.g., no way to swap two arguments like swap(x,y).
+* Function calls have no side-effects; i.e., they cannot alter parameters or globals.
+* However, a function *can* alter any data that is visible/accessible only to that function.
+
+The implementation can use pass-by-reference and then copy-on-write for data altered within a function for efficiecy (avoid copying data each time to/from a function). Example:
+
+```javascript
+X = [1,2,3]
+func f(X : []) {  // [] is both "empty vector" and typename
+    X = 2*X       // X points to new copy of X with 2*X in it
+    g(X)
+}
+
+func g(X : []) {
+    print(X[1])   // prints "2"
+}
+
+f(X)
+print(X[1])       // prints "1"
+```
+
+```javascript
+func f(X : []) {  // [] is both "empty vector" and typename
+    X[0] = 99     // X points to new copy of X with X[0] changed
+}
+
+f(X)
+print(X[1])       // prints "1"
+```
+
+Disallow nested functions.
