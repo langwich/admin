@@ -166,3 +166,18 @@ Disallow nested functions.
 * Local variables, possibly with nested {...} scopes
 
 Functions can see but not alter globals.
+
+# Tasks
+
+## Reference counting
+
+* grammar
+* symbol table construction
+* type annotations on parse tree, includes type propogation (inference)
+* type checker that compares types of left and right side of assignment
+* translation to C
+* a bit of runtime C code
+
+## Mark-and-sweep
+
+## Generational GC
