@@ -94,6 +94,19 @@ x = <expr>
 X[<expr>] = <expr>
 ```
 
+### Assignment semantics
+
+```javascript
+x = <scalar-expr>         # copy scalar-expr to x
+x = <vector-expr>         # copy vector-expr to x (avoids aliasing)
+```
+
+```javascript
+s[i] = <expr>             # static compilation error if s is string
+v[i] = <scalar-expr>      # alter v if v local to function
+v[i] = <scalar-expr>      # set v to new copy, alter v if v arg or global
+```
+
 ## Functions
 
 ### Syntax
@@ -145,3 +158,11 @@ var Y = f([1,2]) // [1,2] first moved into X, [0,2] moved into Y.
 ```
 
 Disallow nested functions.
+
+## Scoping
+
+* Global variables
+* Functions, arguments
+* Local variables, possibly with nested {...} scopes
+
+Functions can see but not alter globals.
