@@ -8,7 +8,7 @@ Brainstorming:
 
 ![](images/whiteboarding.jpg)
 	
-# Initial thoughts of the Language
+# Initial thoughts of the language
 
 1. Statically typed, although not necessarily explicitly typed.
 2. Translated to other language source (like C) or LLVM IR.
