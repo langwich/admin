@@ -107,6 +107,7 @@ func dub(x : int) : int { return x*2 }
 * Semantics are pass-by-value to/from functions. E.g., no way to swap two arguments like swap(x,y).
 * Function calls have no side-effects; i.e., they cannot alter parameters or globals.
 * However, a function *can* alter any data that is visible/accessible only to that function.
+* Implicit move semantic for rvalue. E.g., literal as arguments or function return values could be moved.
 
 The implementation can use pass-by-reference and then copy-on-write for data altered within a function for efficiecy (avoid copying data each time to/from a function). Example:
 
@@ -132,6 +133,15 @@ func f(X : []) {  // [] is both "empty vector" and typename
 
 f(X)
 print(X[1])       // prints "1"
+```
+
+```javascript
+func f(X : []) {  // arguments could be rvalues, moved instead of copied.
+    X[0] = 0
+    return X
+}
+
+var Y = f([1,2]) // [1,2] first moved into X, [0,2] moved into Y.
 ```
 
 Disallow nested functions.
