@@ -141,16 +141,21 @@ print(X[1])       // prints "1"
 
 ```javascript
 func f(X : []) {  // [] is both "empty vector" and typename
-    X[0] = 99     // X points to new copy of X with X[0] changed
+    var Y = X     // Y is a copy of X
+    X[1] = 99     // impl: X points to new copy of X with X[0] changed
+    X[2] = 100    // X is same copy made in previous statement
+    print(X[1])   // prints "99"
+    print(X[2])   // prints "100"
+    print(Y[1])   // prints "1" not "99"
 }
 
 f(X)
-print(X[1])       // prints "1"
+print(X[1])       // prints "1" not "99"
 ```
 
 ```javascript
-func f(X : []) {  // arguments could be rvalues, moved instead of copied.
-    X[0] = 0
+func f(X : []) {  // impl: pass X as pointer to vector
+    X[1] = 0      // impl: copy X and set X to new copy
     return X
 }
 
@@ -159,24 +164,97 @@ var Y = f([1,2]) // [1,2] first moved into X, [0,2] moved into Y.
 
 Disallow nested functions.
 
+### Copy-on-write semantics
+
+Implementation of pass-by-value would use pass-by-reference with copy-on-write. I.e., detect when we are altering a vector aliased and hence visible to another function.  `x[i]=v` for vectors would translate to:
+
+```c
+if ( x->refs > 1 ) { x->refs--; x = <copy of x>; }
+x[i-1] = v;
+```
+
+Assignments must bump ref count; `x = y` for strings or vectors:
+
+```c
+x = y;
+x->refs++; // x and y point to same thing
+```
+
+Same for function call args; `f(x)` for x string or vector:
+
+```c
+x->refs++;
+f(x);
+```
+
+Putting together, `y=f(x)` becomes:
+
+```c
+x->refs++;
+y = f(x);
+y->refs++;
+```
+
+When variables go out of scope, we drop the ref count. 
+
+```javascript
+func f(x : []) {
+	var y = x
+	...
+}
+```
+
+becomes:
+
+```c
+void f(vector *x) {
+	vector *y = x;
+	y->ref++;
+	...
+	y->refs--;
+	x->refs--;
+}
+```
+
+int and float scalars are mapped directly to C. `x = y` for scalars is same in wich and C.
+
 ## Scoping
 
 * Global variables
 * Functions, arguments
 * Local variables, possibly with nested {...} scopes
 
-Functions can see but not alter globals.
+Functions can reference but not alter or set globals.
+
+```javascript
+var MAX = 100
+var salaries = [1,2,3]
+func f(x : int) {
+	x = MAX			// no problem
+	MAX = 3			// static compiler error
+	salaries[1] = 99 // static compiler error
+}
+```
 
 # Tasks
 
 ## Reference counting
 
 * grammar
+* translate sample program to C manually and then identify parse tree -> output translation pieces
 * symbol table construction
 * type annotations on parse tree, includes type propogation (inference)
 * type checker that compares types of left and right side of assignment
 * translation to C
-* a bit of runtime C code
+* a bit of runtime C code (string library, init vector, vector operations)
+
+```c
+typedef struct {
+	int len;			// number of floats
+	int refs;			// refs to this vector
+	float data[];		// a label to the start of the data part of vector
+} vector;
+```
 
 ## Mark-and-sweep
 
