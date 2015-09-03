@@ -69,12 +69,16 @@ sin(X)           // like R and numpy, apply sin() to all X
 ## Statements
 
 ```javascript
-if (<expr>) <stat>+
-if (<expr>) <stat>+ else <stat>+
+if (<expr>) <stat>
+if (<expr>) <stat> else <stat>
 ```
 
 ```javascript
-while ( <expr> ) <stat>+
+while ( <expr> ) <stat>
+```
+
+```javascript
+{ <statement>+ '}'
 ```
 
 ```javascript
