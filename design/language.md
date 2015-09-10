@@ -64,7 +64,96 @@ sin(X)           // like R and numpy, apply sin() to all X
 
 ### Operators
 
-`+`, `-`, `*`, `/`, `^`, `.`, `:` (slice operator for vectors)
+`+`, `-`, `*`, `/`, `<`, `<=`, `==`, `!=`, `>`, `>=`, `||`, `&&`, ` . `, `:` (slice operator for vectors)
+
+### Operator-Type result tables
+
+Tables are symmetric; showing upper triangle here.
+
+| *, /, - | int | float | String   | Vector | boolean |
+|------------|-----|-------|----------|--------|--------|
+| int        | int | float |  | Vector |         |
+| float      |     | float |  | Vector |         |
+| String     |     |       |   | |         |
+| Vector     |     |       |          | Vector |         |
+| boolean |     |       |        |        | |
+
+| + | int | float | String   | Vector | boolean |
+|------------|-----|-------|----------|--------|--------|
+| int        | int | float | String | Vector |         |
+| float      |     | float | String | Vector |         |
+| String     |     |       | String   | String |         |
+| Vector     |     |       |          | Vector |         |
+| boolean |     |       |        |        | |
+
+| <,<=,>,>= | int | float | String   | Vector | boolean |
+|------------|-----|-------|----------|--------|--------|
+| int        | boolean | boolean |  | |         |
+| float      |     | boolean |  | |         |
+| String     |     |       | boolean   | |         |
+| Vector     |     |       |          | |         |
+| boolean |     |       |        |        | |
+
+| ==,!= | int | float | String   | Vector | boolean |
+|------------|-----|-------|----------|--------|--------|
+| int        | boolean | boolean |  | |         |
+| float      |     | boolean |  | |         |
+| String     |     |       | boolean   | |         |
+| Vector     |     |       |          | boolean |         |
+| boolean |     |       |        |        | boolean |
+
+| and,or   | int | float | String | Vector | boolean |
+|---------|-----|-------|--------|--------|---------|
+| int     |     |       |        |        |         |
+| float   |     |       |        |        |         |
+| String  |     |       |        |        |         |
+| Vector  |     |       |        |        |         |
+| boolean |     |       |        |        | boolean |
+
+### Operator-Type promotion tables
+
+Asymmetric tables as switching args to `promoteFromTo(type,op,destination-type)` can get different results. We need to know if `promotesFromTo(int,*,Vector)` requires promotion of `int` to `Vector`. But, `promotesFromTo(Vector,*,Vector)` is different and Vector requires no promotion to result type of `Vector`. I use `Vector` not `int` in second case as the right arg is the expression result type, not the right operand type.
+
+| *, /, - | int | float | String   | Vector | boolean |
+|------------|-----|-------|----------|--------|--------|
+| int        | | float |  | Vector |         |
+| float      |     | |  | Vector |         |
+| String     |     |       |   | |         |
+| Vector     |     |       |          | |         |
+| boolean |     |       |        |        | |
+
+| + | int | float | String   | Vector | boolean |
+|------------|-----|-------|----------|--------|--------|
+| int        | | float | String | Vector |         |
+| float      |     | | String | Vector |         |
+| String     |     |       |   | |         |
+| Vector     |     |       |   String   | |         |
+| boolean |     |       |        |        | |
+
+| <,<=,>,>= | int | float | String   | Vector | boolean |
+|------------|-----|-------|----------|--------|--------|
+| int        | | float|  | |         |
+| float      |     | |  | |         |
+| String     |     |       |   | |         |
+| Vector     |     |       |          | |         |
+| boolean |     |       |        |        | |
+
+| ==,!= | int | float | String   | Vector | boolean |
+|------------|-----|-------|----------|--------|--------|
+| int        | | float|  | |         |
+| float      |     | |  | |         |
+| String     |     |       |   | |         |
+| Vector     |     |       |          | |         |
+| boolean |     |       |        |        | |
+
+| and,or   | int | float | String | Vector | boolean |
+|---------|-----|-------|--------|--------|---------|
+| int     |     |       |        |        |         |
+| float   |     |       |        |        |         |
+| String  |     |       |        |        |         |
+| Vector  |     |       |        |        |         |
+| boolean |     |       |        |        | |
+
 
 ## Statements
 
